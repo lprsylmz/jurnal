@@ -1,0 +1,25 @@
+---
+layout: null
+---
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Alper Söylemez - Journal</title>
+    <description>Notlarım; hatırlamak ve hatırlatmak için.</description>
+    <link>https://lprsylmz.tr/</link>
+    <atom:link href="https://lprsylmz.tr/feed.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
+
+    {% assign entries = site.journal_entries | reverse %}
+    {% for post in entries limit:20 %}
+    {% assign entry_number = entries.size | minus: forloop.index0 %}
+    <item>
+      <title>Entry #{{ entry_number }} - {{ post.date | date: "%d.%m.%Y" }}</title>
+      <description>{{ post.content | xml_escape }}</description>
+      <link>https://lprsylmz.tr/#{{ entry_number }}</link>
+      {% comment %} pubDate mutlaka date_to_rfc822 formatında olmalıdır {% endcomment %}
+      <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>

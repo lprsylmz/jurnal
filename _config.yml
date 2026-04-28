@@ -1,0 +1,44 @@
+title: "Alper Söylemez"
+description: "Notlarım; hatırlamak ve hatırlatmak için."
+author: "Alper Söylemez"
+url: "https://lprsylmz.tr"
+
+twitter_username: lprsylmz
+google_analytics: "G-DBWK2DZD1C"
+yandex_metrica: "108975845"
+cloudflare_token: "e7ffd2bb59a1435baaaacac5f10910df"
+yandex_verification: "41cec89ecaaf7150"
+
+permalink: /#:title
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - README.md
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+      is_published: true
+
+feed:
+  collections:
+    journal_entries:
+      content: true
+
+collections:
+  journal_entries:
+    output: false
