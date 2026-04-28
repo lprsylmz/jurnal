@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="tr" class="antialiased" style="scroll-padding-top: 100px;">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#27374D">
+
+    <!-- ✅ _config.yml: site.title, site.description, site.author -->
+    <meta name="title" content="{{ page.title | default: site.title }}" />
+    <meta name="description" content="{{ page.description | default: site.description }}" />
+    <meta name="author" content="{{ site.author }}" />
+    <meta name="robots" content="INDEX, FOLLOW" />
+    <link rel="canonical" href="{{ page.url | absolute_url }}" />
+    <link rel="alternate" type="application/rss+xml" title="{{ site.title }} RSS Feed"
+        href="{{ '/feed.xml' | absolute_url }}" />
+
+    <title>{{ page.title | default: site.title }}</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ '/favicon.svg' | relative_url }}">
+    <link rel="icon" type="image/svg+xml" href="{{ '/favicon.svg' | relative_url }}">
+    <link rel="shortcut icon" type="image/svg+xml" href="{{ '/favicon.svg' | relative_url }}">
+
+    <!-- Open Graph — ✅ _config.yml: site.title, site.description, site.author -->
+    <meta property="og:site_name" content="{{ site.title }}" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:type" content="{% if page.layout == 'note' %}article{% else %}website{% endif %}" />
+    <meta property="og:url" content="{{ page.url | absolute_url }}" />
+    <meta property="og:title" content="{{ page.title | default: site.title }}" />
+    <meta property="og:description" content="{{ page.description | default: site.description }}" />
+    <meta property="og:image"
+        content="{% if page.image %}{{ page.image | absolute_url }}{% else %}{{ '/favicon.svg' | absolute_url }}{% endif %}" />
+
+    <!-- Twitter Card — ✅ _config.yml: site.twitter_username -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:site" content="@{{ site.twitter_username }}" />
+    <meta property="twitter:url" content="{{ page.url | absolute_url }}" />
+    <meta property="twitter:title" content="{{ page.title | default: site.title }}" />
+    <meta property="twitter:description" content="{{ page.description | default: site.description }}" />
+    <meta property="twitter:image"
+        content="{% if page.image %}{{ page.image | absolute_url }}{% else %}{{ '/favicon.svg' | absolute_url }}{% endif %}" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="/assets/js/tailwindcss.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-light': '#F5F0E8',
+                        'brand-dark': '#1C1F26',
+                        'brand-accent': '#4A6FA5',
+                        'brand-muted': '#8D99AE',
+                        'brand-primary': '#4A6FA5',
+                    },
+                    fontFamily: {
+                        sans: ['"Lora"', 'Georgia', 'serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .prose a {
+            color: #4A6FA5;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .prose {
+            --tw-prose-pre-bg: #d1d5db;
+        }
+
+        .dark .prose {
+            --tw-prose-pre-bg: #171a20;
+        }
+
+        .prose blockquote {
+            font-weight: bold;
+            font-style: italic;
+            border-left: 3px solid rgba(74, 111, 165, 0.5);
+            padding-left: 1rem;
+            margin: 1rem 0;
+        }
+
+        .prose img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 0.5rem;
+            max-width: 100%;
+        }
+
+        .prose pre,
+        .prose .highlight,
+        .prose .highlighter-rouge {
+            white-space: pre-wrap;
+            word-break: break-words;
+            border-radius: 0.5rem;
+            background-color: #c5cad3 !important;
+            padding: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .prose pre code {
+            background: transparent !important;
+        }
+
+        .dark .prose pre,
+        .dark .prose .highlight,
+        .dark .prose .highlighter-rouge {
+            background-color: #171a20 !important;
+        }
+
+        .prose hr {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            border-color: rgba(28, 31, 38, 0.2);
+        }
+
+        .dark .prose hr {
+            border-color: rgba(245, 240, 232, 0.2);
+        }
+
+        .prose p {
+            margin-bottom: 1.5rem;
+        }
+
+        .prose h1 {
+            margin-bottom: 2rem;
+        }
+
+        .prose h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .prose h3 {
+            margin-bottom: 1rem;
+        }
+
+        .prose ul,
+        .prose ol {
+            margin-bottom: 1.5rem;
+        }
+
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+
+        .prose *:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .code-wrapper pre {
+            margin-bottom: 0 !important;
+            width: 100%;
+        }
+
+        .cc-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            z-index: 30;
+            opacity: 0;
+            transition: all 0.2s;
+            background: #0f172a;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            color: #f8fafc;
+            border-radius: 6px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .code-wrapper:hover .cc-btn {
+            opacity: 1;
+        }
+
+        .cc-btn:hover {
+            background: #1e293b !important;
+            transform: scale(1.05);
+            border-color: rgba(148, 163, 184, 0.6);
+        }
+
+        .cc-btn.cc-ok {
+            opacity: 1 !important;
+            color: #4ade80 !important;
+            border-color: #22c55e !important;
+            background: #064e3b !important;
+        }
+
+        @media (max-width: 768px) {
+            .cc-btn {
+                opacity: 0.9;
+            }
+        }
+    </style>
+
+    <!-- Dark Mode Init (flash prevention) -->
+    <script>
+            (function () {
+                try {
+                    const isLight = localStorage.getItem('darkMode') === 'false';
+                    if (!isLight) document.documentElement.classList.add('dark');
+                    else document.documentElement.classList.remove('dark');
+                    window.initialDarkMode = !isLight;
+                } catch {
+                    document.documentElement.classList.add('dark');
+                    window.initialDarkMode = true;
+                }
+            })();
+    </script>
+
+    <!-- ✅ Cookie consent yardımcı fonksiyonları — localStorage erişilemeyen ortamlarda sessionStorage'a düşer -->
+    <script>
+        function getConsent() {
+            try { return localStorage.getItem('cookie_consent'); } catch (e) { }
+            try { return sessionStorage.getItem('cookie_consent'); } catch (e) { }
+            return null;
+        }
+
+        function setConsent(val) {
+            try { localStorage.setItem('cookie_consent', val); } catch (e) { }
+            try { sessionStorage.setItem('cookie_consent', val); } catch (e) { }
+        }
+    </script>
+
+    {% if page.layout == 'note' %}
+    <!-- ✅ _config.yml: site.title, site.author, site.url -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ page.url | absolute_url }}" },
+        "headline": "{{ page.title | escape }}",
+        "description": "{{ page.description | escape }}",
+        "image": "{% if page.image %}{{ page.image | absolute_url }}{% else %}{{ '/assets/images/avatar.webp' | absolute_url }}{% endif %}",
+        "author": { "@type": "Person", "name": "{{ site.author }}", "url": "{{ '/' | absolute_url }}" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{ site.title }}",
+            "logo": { "@type": "ImageObject", "url": "{{ '/favicon.svg' | absolute_url }}" }
+        },
+        "datePublished": "{{ page.date | date_to_xmlschema }}",
+        "dateModified": "{{ page.last_modified_at | default: page.date | date_to_xmlschema }}"
+    }
+    </script>
+    {% endif %}
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Ana Sayfa", "item": "{{ '/' | absolute_url }}" }
+            {% if page.layout == 'note' %}
+            ,{ "@type": "ListItem", "position": 2, "name": "{{ page.title | escape }}", "item": "{{ page.url | absolute_url }}" }
+            {% endif %}
+        ]
+    }
+    </script>
+
+    <!-- ✅ _config.yml: site.yandex_verification -->
+    <meta name="yandex-verification" content="{{ site.yandex_verification }}" />
+</head>
+
+<body x-data="{
+    darkMode: window.initialDarkMode,
+    searchOpen: false,
+    toggle() {
+      this.darkMode = !this.darkMode;
+      localStorage.setItem('darkMode', String(this.darkMode));
+      document.documentElement.classList.toggle('dark', this.darkMode);
+      window.initialDarkMode = this.darkMode;
+    },
+    toggleSearch() {
+      this.searchOpen = !this.searchOpen;
+      if (this.searchOpen) {
+        setTimeout(() => { const el = document.getElementById('search-input'); if (el) el.focus(); }, 100);
+      }
+    }
+  }"
+    class="bg-brand-light text-brand-dark transition-colors duration-300 dark:bg-brand-dark dark:text-brand-light min-h-screen font-sans antialiased">
+
+    <!-- Reading Progress Bar -->
+    <div id="reading-progress"
+        class="fixed top-0 left-0 h-[3px] bg-brand-accent dark:bg-brand-muted z-50 transition-all duration-100 ease-out"
+        style="width:0%;" role="progressbar" aria-label="Okuma ilerlemesi" aria-valuenow="0" aria-valuemin="0"
+        aria-valuemax="100">
+    </div>
+
+    <div class="max-w-3xl mx-auto px-6 py-16 md:py-24">
+
+        <!-- HEADER -->
+        <header
+            class="sticky top-0 z-40 bg-brand-light dark:bg-brand-dark border border-brand-dark/10 dark:border-brand-light/10 rounded-xl relative flex flex-col gap-6 mb-20 shadow-xl hover:bg-brand-light/95 dark:hover:bg-brand-dark/95 p-4">
+            <div class="flex justify-between items-center">
+
+                <!-- Logo -->
+                <a href="{{ '/' | relative_url }}" class="hover:opacity-80 transition-opacity" aria-label="Ana Sayfa">
+                    <!-- Light mode logo -->
+                    <svg x-show="!darkMode" class="rounded-xl" width="40" height="40" viewBox="0 0 512 512"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <g transform="matrix(0.06436962,0,0,-0.06752194,-75.430711,374.30048)" fill="#1C1F26"
+                            stroke="none">
+                            <g transform="translate(-1.8043429e-6,-3509.9698)">
+                                <path
+                                    d="m 5175,8164 c -15,-32 -63,-142 -107,-244 -44,-102 -106,-243 -138,-315 -85,-188 -243,-549 -310,-705 -97,-226 -223,-517 -295,-678 -39,-87 -64,-157 -59,-162 9,-8 475,-195 503,-202 9,-2 36,47 81,147 209,467 319,713 331,738 7,15 16,27 20,27 4,0 44,-84 89,-187 161,-367 392,-890 441,-996 27,-59 49,-111 49,-115 1,-22 35,-40 226,-118 344,-141 535,-216 538,-212 3,3 -74,185 -159,378 -18,41 -64,147 -103,235 -38,88 -116,266 -172,395 -57,129 -115,264 -130,300 -27,64 -126,293 -200,460 -20,47 -65,150 -100,230 -54,126 -348,793 -445,1009 l -34,75 z" />
+                                <path
+                                    d="m 4700,7584 c -484,-74 -929,-261 -1187,-499 -145,-133 -262,-325 -299,-490 -23,-103 -24,-284 -2,-381 68,-297 301,-560 639,-723 110,-53 116,-56 684,-284 198,-80 500,-201 670,-270 171,-69 330,-130 355,-137 25,-6 59,-20 75,-30 17,-10 59,-30 95,-43 36,-14 164,-65 285,-115 121,-49 373,-151 560,-226 454,-183 502,-207 610,-308 47,-44 95,-98 105,-119 34,-66 25,-135 -27,-205 -30,-40 -29,-53 6,-122 15,-31 68,-146 116,-255 l 89,-198 64,63 c 156,153 286,365 318,518 19,88 14,221 -11,315 -23,82 -96,234 -149,309 -58,81 -185,203 -266,255 -119,77 -342,179 -730,335 -395,158 -495,198 -875,354 -359,147 -676,275 -1095,442 -637,255 -720,298 -842,429 -105,114 -143,215 -127,342 17,140 88,243 239,348 118,82 324,169 519,220 l 105,28 97,224 c 54,123 98,227 98,232 1,9 -1,9 -119,-9 z" />
+                                <path
+                                    d="m 5590,7587 c 0,-3 41,-99 91,-214 50,-114 95,-220 100,-234 8,-22 23,-30 87,-49 112,-32 265,-108 357,-177 199,-148 330,-346 389,-586 l 22,-90 131,144 c 72,79 160,178 196,219 l 66,75 -31,55 c -215,381 -585,657 -1063,793 -130,37 -345,77 -345,64 z" />
+                                <path
+                                    d="m 3904,5328 c -7,-24 -80,-198 -366,-873 -28,-66 -66,-156 -83,-200 -18,-44 -49,-114 -68,-156 -20,-42 -56,-125 -81,-185 -53,-129 -72,-175 -96,-229 -10,-22 -68,-159 -130,-305 -62,-146 -140,-330 -175,-410 -34,-80 -100,-233 -145,-340 -45,-107 -97,-225 -116,-262 l -33,-68 h 324 324 l 16,55 c 9,31 115,289 236,573 122,284 279,654 350,822 71,168 138,323 148,345 23,50 105,242 211,495 45,107 93,218 107,245 23,45 104,229 123,281 8,20 -3,26 -148,84 -86,34 -175,71 -197,81 -55,24 -175,69 -186,69 -4,0 -11,-10 -15,-22 z" />
+                                <path
+                                    d="m 2687,4438 c -137,-116 -251,-218 -255,-226 -9,-25 17,-206 48,-329 71,-280 194,-510 386,-722 15,-16 11,-24 104,199 29,69 70,165 92,214 l 39,88 -24,38 c -112,167 -167,367 -167,599 0,93 21,302 35,339 2,6 1,12 -3,12 -4,-1 -119,-96 -255,-212 z" />
+                                <path
+                                    d="m 6205,4408 c 4,-13 16,-38 26,-56 10,-18 39,-79 63,-135 24,-56 103,-237 174,-402 209,-482 253,-583 392,-900 214,-485 239,-545 246,-581 l 6,-34 h 335 335 l -16,23 c -27,36 -47,79 -321,697 -23,52 -59,131 -79,175 -21,44 -87,193 -148,330 -61,138 -147,331 -192,430 l -81,179 -175,71 c -96,39 -261,105 -365,148 -105,42 -194,77 -198,77 -5,0 -5,-10 -2,-22 z" />
+                                <path
+                                    d="m 3685,3098 c -21,-51 -62,-150 -92,-219 -29,-70 -53,-131 -53,-136 0,-6 55,-36 122,-68 381,-180 782,-292 1203,-337 158,-16 617,-16 770,0 367,40 718,143 1047,308 62,31 122,63 134,71 l 22,14 -74,171 c -67,152 -111,246 -120,257 -1,2 -30,-13 -62,-33 -224,-136 -526,-243 -837,-298 -100,-17 -169,-21 -415,-24 -162,-1 -340,2 -395,7 -383,35 -800,160 -1132,339 -41,22 -75,40 -77,40 -1,0 -19,-42 -41,-92 z" />
+                            </g>
+                        </g>
+                    </svg>
+                    <!-- Dark mode logo -->
+                    <svg x-show="darkMode" x-cloak class="rounded-xl" width="40" height="40" viewBox="0 0 512 512"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <g transform="matrix(0.06436962,0,0,-0.06752194,-75.430711,374.30048)" fill="#F5F0E8"
+                            stroke="none">
+                            <g transform="translate(-1.8043429e-6,-3509.9698)">
+                                <path
+                                    d="m 5175,8164 c -15,-32 -63,-142 -107,-244 -44,-102 -106,-243 -138,-315 -85,-188 -243,-549 -310,-705 -97,-226 -223,-517 -295,-678 -39,-87 -64,-157 -59,-162 9,-8 475,-195 503,-202 9,-2 36,47 81,147 209,467 319,713 331,738 7,15 16,27 20,27 4,0 44,-84 89,-187 161,-367 392,-890 441,-996 27,-59 49,-111 49,-115 1,-22 35,-40 226,-118 344,-141 535,-216 538,-212 3,3 -74,185 -159,378 -18,41 -64,147 -103,235 -38,88 -116,266 -172,395 -57,129 -115,264 -130,300 -27,64 -126,293 -200,460 -20,47 -65,150 -100,230 -54,126 -348,793 -445,1009 l -34,75 z" />
+                                <path
+                                    d="m 4700,7584 c -484,-74 -929,-261 -1187,-499 -145,-133 -262,-325 -299,-490 -23,-103 -24,-284 -2,-381 68,-297 301,-560 639,-723 110,-53 116,-56 684,-284 198,-80 500,-201 670,-270 171,-69 330,-130 355,-137 25,-6 59,-20 75,-30 17,-10 59,-30 95,-43 36,-14 164,-65 285,-115 121,-49 373,-151 560,-226 454,-183 502,-207 610,-308 47,-44 95,-98 105,-119 34,-66 25,-135 -27,-205 -30,-40 -29,-53 6,-122 15,-31 68,-146 116,-255 l 89,-198 64,63 c 156,153 286,365 318,518 19,88 14,221 -11,315 -23,82 -96,234 -149,309 -58,81 -185,203 -266,255 -119,77 -342,179 -730,335 -395,158 -495,198 -875,354 -359,147 -676,275 -1095,442 -637,255 -720,298 -842,429 -105,114 -143,215 -127,342 17,140 88,243 239,348 118,82 324,169 519,220 l 105,28 97,224 c 54,123 98,227 98,232 1,9 -1,9 -119,-9 z" />
+                                <path
+                                    d="m 5590,7587 c 0,-3 41,-99 91,-214 50,-114 95,-220 100,-234 8,-22 23,-30 87,-49 112,-32 265,-108 357,-177 199,-148 330,-346 389,-586 l 22,-90 131,144 c 72,79 160,178 196,219 l 66,75 -31,55 c -215,381 -585,657 -1063,793 -130,37 -345,77 -345,64 z" />
+                                <path
+                                    d="m 3904,5328 c -7,-24 -80,-198 -366,-873 -28,-66 -66,-156 -83,-200 -18,-44 -49,-114 -68,-156 -20,-42 -56,-125 -81,-185 -53,-129 -72,-175 -96,-229 -10,-22 -68,-159 -130,-305 -62,-146 -140,-330 -175,-410 -34,-80 -100,-233 -145,-340 -45,-107 -97,-225 -116,-262 l -33,-68 h 324 324 l 16,55 c 9,31 115,289 236,573 122,284 279,654 350,822 71,168 138,323 148,345 23,50 105,242 211,495 45,107 93,218 107,245 23,45 104,229 123,281 8,20 -3,26 -148,84 -86,34 -175,71 -197,81 -55,24 -175,69 -186,69 -4,0 -11,-10 -15,-22 z" />
+                                <path
+                                    d="m 2687,4438 c -137,-116 -251,-218 -255,-226 -9,-25 17,-206 48,-329 71,-280 194,-510 386,-722 15,-16 11,-24 104,199 29,69 70,165 92,214 l 39,88 -24,38 c -112,167 -167,367 -167,599 0,93 21,302 35,339 2,6 1,12 -3,12 -4,-1 -119,-96 -255,-212 z" />
+                                <path
+                                    d="m 6205,4408 c 4,-13 16,-38 26,-56 10,-18 39,-79 63,-135 24,-56 103,-237 174,-402 209,-482 253,-583 392,-900 214,-485 239,-545 246,-581 l 6,-34 h 335 335 l -16,23 c -27,36 -47,79 -321,697 -23,52 -59,131 -79,175 -21,44 -87,193 -148,330 -61,138 -147,331 -192,430 l -81,179 -175,71 c -96,39 -261,105 -365,148 -105,42 -194,77 -198,77 -5,0 -5,-10 -2,-22 z" />
+                                <path
+                                    d="m 3685,3098 c -21,-51 -62,-150 -92,-219 -29,-70 -53,-131 -53,-136 0,-6 55,-36 122,-68 381,-180 782,-292 1203,-337 158,-16 617,-16 770,0 367,40 718,143 1047,308 62,31 122,63 134,71 l 22,14 -74,171 c -67,152 -111,246 -120,257 -1,2 -30,-13 -62,-33 -224,-136 -526,-243 -837,-298 -100,-17 -169,-21 -415,-24 -162,-1 -340,2 -395,7 -383,35 -800,160 -1132,339 -41,22 -75,40 -77,40 -1,0 -19,-42 -41,-92 z" />
+                            </g>
+                        </g>
+                    </svg>
+                </a>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-2">
+                    <button x-on:click="toggleSearch()" aria-label="Arama"
+                        class="p-3 rounded-2xl bg-brand-light text-brand-dark dark:bg-brand-dark dark:text-brand-light hover:bg-brand-accent/20 dark:hover:bg-brand-muted/20 transition-all duration-300 shadow-sm focus:outline-none flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                    <button x-on:click="toggle()" aria-label="Karanlık Mod"
+                        class="p-3 rounded-2xl bg-brand-light text-brand-dark dark:bg-brand-dark dark:text-brand-light hover:bg-brand-accent/20 dark:hover:bg-brand-muted/20 transition-all duration-300 shadow-sm focus:outline-none flex items-center justify-center">
+                        <svg x-show="!darkMode" title="Karanlık Mod" class="w-6 h-6" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                        </svg>
+                        <svg x-show="darkMode" x-cloak title="Aydınlık Mod" class="w-6 h-6" fill="none"
+                            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <path
+                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Dropdown -->
+            <div x-show="searchOpen" x-cloak x-transition class="absolute left-0 right-0 top-full z-50 px-4 pt-2"
+                x-data="{
+          searchQuery: '',
+          notes: [],
+          searchResults: [],
+          isLoading: false,
+          async initSearch() {
+            if (this.notes.length > 0) return;
+            this.isLoading = true;
+            try {
+              const response = await fetch('/search_notes.json');
+              this.notes = await response.json();
+            } catch (error) {
+              console.error('Arama dizini yüklenemedi:', error);
+            }
+            this.isLoading = false;
+          },
+          search() {
+            const q = this.searchQuery.trim().toLowerCase();
+            if (q.length < 2) { this.searchResults = []; return; }
+            this.searchResults = this.notes.filter(note =>
+              (note.title && note.title.toLowerCase().includes(q)) ||
+              (note.content && note.content.toLowerCase().includes(q))
+            ).slice(0, 5);
+          }
+        }" x-init="initSearch()">
+                <input id="search-input" type="text" x-model="searchQuery" x-on:input.debounce.300ms="search()"
+                    placeholder="Notlarda ara..."
+                    class="w-full px-5 py-3 rounded-2xl bg-white/50 dark:bg-white/5 border border-brand-dark/10 dark:border-brand-light/10 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all dark:placeholder:text-gray-500 font-sans text-sm">
+
+                <template x-if="searchResults.length > 0">
+                    <ul
+                        class="mt-2 bg-brand-light dark:bg-brand-dark rounded-xl shadow-md overflow-hidden border border-brand-dark/10 dark:border-brand-light/10">
+                        <template x-for="note in searchResults" :key="note.url">
+                            <li class="border-b last:border-b-0 border-brand-muted/20 dark:border-brand-muted/50">
+                                <a :href="note.url"
+                                    class="block px-4 py-2 hover:bg-brand-accent/10 dark:hover:bg-brand-muted/20 transition-colors">
+                                    <div class="font-bold text-sm" x-text="note.title"></div>
+                                    <div class="text-xs text-brand-muted dark:text-brand-light/60" x-text="note.date">
+                                    </div>
+                                </a>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+                <div x-show="searchQuery.length >= 2 && !searchResults.length && !isLoading"
+                    class="mt-2 text-sm text-brand-muted dark:text-brand-light/60 px-1">
+                    Sonuç bulunamadı.
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="min-h-[50vh]">
+            {{ content }}
+        </main>
+
+        <!-- FOOTER — ✅ _config.yml: site.author -->
+        <footer
+            class="mt-24 pt-12 border-t border-brand-muted/30 dark:border-brand-accent/30 text-sm text-brand-accent dark:text-brand-muted flex flex-col items-center justify-center text-center gap-2">
+            <div class="opacity-60 hover:opacity-100 transition-opacity">
+                <a href="{{ '/feed.xml' | relative_url }}"
+                    class="hover:text-brand-dark dark:hover:text-brand-light transition-colors uppercase tracking-[0.2em] text-[10px] font-bold">RSS
+                    Feed</a>
+                <span class="mx-2">|</span>
+                <a href="{{ '/' | relative_url }}"
+                    class="hover:text-brand-dark dark:hover:text-brand-light transition-colors uppercase tracking-[0.2em] text-[10px] font-bold">Journal</a>
+            </div>
+            <p>{{ site.author }} &copy; {% assign current_year = 'now' | date: '%Y' %}{{ current_year }}</p>
+        </footer>
+    </div>
+
+    <!-- Cookie Banner -->
+    <!--
+        DEĞİŞİKLİK: x-data'da artık doğrudan localStorage.getItem() yerine
+        getConsent() helper fonksiyonu kullanılıyor. Bu fonksiyon <head>'de
+        tanımlandı; try/catch ile localStorage erişilemeyen ortamlarda
+        (Safari gizli sekme, bazı tarayıcı politikaları) sessionStorage'a
+        düşüyor, her ikisi de başarısız olursa null döndürüyor ve banner
+        tekrar gösterilmiyor.
+    -->
+    <div id="cookie-banner"
+        class="fixed bottom-6 left-0 right-0 mx-auto w-[calc(100%-2rem)] max-w-2xl p-6 bg-brand-light dark:bg-brand-dark text-brand-dark dark:text-brand-light text-sm text-center z-[9999] flex flex-col md:flex-row items-center justify-center gap-4 border border-brand-dark/10 dark:border-brand-light/10 backdrop-blur-sm rounded-2xl shadow-2xl transition-all duration-300"
+        x-data="{ show: getConsent() === null }" x-show="show" x-cloak>
+        <p class="max-w-2xl leading-relaxed opacity-90">
+            Bu site, ziyaretçi davranışlarını analiz etmek amacıyla Google Analytics, Yandex Metrica ve Cloudflare Web
+            Analytics araçlarını kullanır.
+            Onay vermediğiniz sürece analitik çerezler etkinleştirilmez.
+            <a href="/cerez-politikasi" class="underline hover:opacity-100 opacity-80 font-semibold ml-1">Detaylı bilgi
+                için Çerez Politikası</a>
+        </p>
+        <div class="flex gap-3">
+            <button onclick="acceptCookies()" x-on:click="show = false"
+                class="px-6 py-2 bg-brand-dark dark:bg-brand-light text-brand-light dark:text-brand-dark hover:bg-brand-accent dark:hover:bg-brand-muted font-bold rounded-lg transition-colors whitespace-nowrap">
+                Kabul Et
+            </button>
+            <button onclick="rejectCookies()" x-on:click="show = false"
+                class="px-6 py-2 bg-brand-accent text-brand-light hover:opacity-90 font-bold rounded-lg transition-colors whitespace-nowrap">
+                Reddet
+            </button>
+        </div>
+    </div>
+
+    <!-- Alpine.js -->
+    <script defer src="/assets/js/alpine.min.js"></script>
+
+    <!-- Analytics & Cookies — ✅ _config.yml: site.google_analytics, site.yandex_metrica, site.cloudflare_token -->
+    <script>
+        const GA_ID = '{{ site.google_analytics }}';
+        const YM_ID = '{{ site.yandex_metrica }}';
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+
+        gtag('consent', 'default', { ad_storage: 'denied', analytics_storage: 'denied' });
+
+        let gaLoaded = false;
+        let lastTrackedPath = null;
+
+        function trackPageView() {
+            if (!gaLoaded || getConsent() !== 'accepted') return;
+            const path = location.pathname + location.search;
+            if (path === lastTrackedPath) return;
+            lastTrackedPath = path;
+            gtag('event', 'page_view', { page_path: path, page_location: location.href, page_title: document.title });
+        }
+
+        function loadGA() {
+            if (gaLoaded) return;
+            const s = document.createElement('script');
+            s.async = true;
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+            s.onload = function () {
+                gaLoaded = true;
+                gtag('js', new Date());
+                gtag('config', GA_ID, { send_page_view: false, anonymize_ip: true });
+                trackPageView();
+            };
+            document.head.appendChild(s);
+        }
+
+        function loadYM() {
+            (function (m, e, t, r, i, k, a) {
+                m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+                m[i].l = 1 * new Date();
+                k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+            })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=' + YM_ID, 'ym');
+            ym(YM_ID, 'init', { webvisor: true, clickmap: true, accurateTrackBounce: true, trackLinks: true });
+        }
+
+        let cfaLoaded = false;
+        function loadCFA() {
+            if (cfaLoaded) return;
+            const s = document.createElement('script');
+            s.defer = true;
+            s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+            s.setAttribute('data-cf-beacon', '{"token": "{{ site.cloudflare_token }}"}');
+            document.head.appendChild(s);
+            cfaLoaded = true;
+        }
+
+        // DEĞİŞİKLİK: localStorage.getItem() → getConsent() (head'deki helper)
+        if (getConsent() === 'accepted') {
+            gtag('consent', 'update', { ad_storage: 'granted', analytics_storage: 'granted' });
+            loadGA(); loadYM(); loadCFA();
+        }
+
+        // DEĞİŞİKLİK: localStorage.setItem() → setConsent() (head'deki helper)
+        window.acceptCookies = function () {
+            setConsent('accepted');
+            gtag('consent', 'update', { ad_storage: 'granted', analytics_storage: 'granted' });
+            loadGA(); loadYM(); loadCFA();
+        };
+
+        window.rejectCookies = function () {
+            setConsent('rejected');
+        };
+    </script>
+
+    <!-- Reading Progress + Code Copy -->
+    <script>
+        (function () {
+            function setupReadingProgress() {
+                const bar = document.getElementById('reading-progress');
+                if (!bar) return;
+                window.addEventListener('scroll', function () {
+                    const s = window.scrollY;
+                    const d = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    const pct = d > 0 ? Math.min(100, (s / d) * 100) : 0;
+                    bar.style.width = pct + '%';
+                    bar.setAttribute('aria-valuenow', Math.round(pct));
+                }, { passive: true });
+            }
+
+            function setupCodeCopyButtons() {
+                const copySvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                const checkSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+                document.querySelectorAll('.prose pre').forEach(function (pre) {
+                    if (pre.parentElement.classList.contains('code-wrapper')) return;
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'code-wrapper';
+                    const btn = document.createElement('button');
+                    btn.className = 'cc-btn';
+                    btn.innerHTML = copySvg;
+                    btn.type = 'button';
+                    pre.parentNode.insertBefore(wrapper, pre);
+                    wrapper.appendChild(pre);
+                    wrapper.appendChild(btn);
+                    btn.onclick = function (e) {
+                        e.preventDefault(); e.stopPropagation();
+                        const text = pre.innerText || pre.textContent;
+                        (navigator.clipboard && window.isSecureContext
+                            ? navigator.clipboard.writeText(text)
+                            : new Promise((res, rej) => {
+                                const area = document.createElement('textarea');
+                                area.value = text; area.style.position = 'fixed'; area.style.opacity = '0';
+                                document.body.appendChild(area); area.select();
+                                document.execCommand('copy') ? res() : rej();
+                                document.body.removeChild(area);
+                            })
+                        ).then(() => {
+                            btn.innerHTML = checkSvg; btn.classList.add('cc-ok');
+                            setTimeout(() => { btn.innerHTML = copySvg; btn.classList.remove('cc-ok'); }, 2000);
+                        }).catch(err => console.error('Kopyalama hatası:', err));
+                    };
+                });
+            }
+
+            if (!window.copyHandlerInitialized) {
+                document.addEventListener('click', function (e) {
+                    const btn = e.target.closest('.copy-trigger');
+                    if (!btn) return;
+                    const text = btn.getAttribute('data-copy-url');
+                    const icon = btn.querySelector('.copy-icon');
+                    const check = btn.querySelector('.check-icon');
+                    navigator.clipboard.writeText(text).then(() => {
+                        if (icon) icon.classList.add('hidden');
+                        if (check) check.classList.remove('hidden');
+                        setTimeout(() => {
+                            if (icon) icon.classList.remove('hidden');
+                            if (check) check.classList.add('hidden');
+                        }, 2000);
+                    });
+                });
+                window.copyHandlerInitialized = true;
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                setupReadingProgress();
+                setupCodeCopyButtons();
+            });
+        })();
+    </script>
+
+    <noscript>
+        <!-- ✅ _config.yml: site.yandex_metrica -->
+        <div><img src="https://mc.yandex.ru/watch/{{ site.yandex_metrica }}" style="position:absolute;left:-9999px;"
+                alt="" /></div>
+    </noscript>
+</body>
+
+</html>
