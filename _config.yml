@@ -41,4 +41,4 @@ feed:
 
 collections:
   journal_entries:
-    output: false
+    output: true

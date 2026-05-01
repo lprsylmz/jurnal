@@ -237,6 +237,119 @@
                 opacity: 0.9;
             }
         }
+        /* Link Preview Card */
+        .link-preview-card {
+            display: flex;
+            flex-direction: row;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(74, 111, 165, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            text-decoration: none !important;
+            margin: 1.5rem 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 100%;
+            height: 140px;
+        }
+
+        .link-preview-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(74, 111, 165, 0.5);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .dark .link-preview-card {
+            background: rgba(28, 31, 38, 0.6);
+            border-color: rgba(245, 240, 232, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .dark .link-preview-card:hover {
+            background: rgba(28, 31, 38, 0.8);
+            border-color: rgba(245, 240, 232, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .link-preview-image {
+            width: 200px;
+            min-width: 200px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+
+        .link-preview-info {
+            flex: 1;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+            gap: 4px;
+        }
+
+        .link-preview-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1C1F26;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dark .link-preview-title {
+            color: #F5F0E8;
+        }
+
+        .link-preview-description {
+            font-size: 0.875rem;
+            color: #8D99AE;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        .link-preview-url {
+            font-size: 0.75rem;
+            color: #4A6FA5;
+            text-transform: lowercase;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .link-preview-url svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .link-preview-card {
+                flex-direction: column;
+                height: auto;
+            }
+            .link-preview-image {
+                width: 100%;
+                height: 160px;
+            }
+        }
+
+        /* Loading Skeleton */
+        .link-preview-skeleton {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
     </style>
 
     <!-- Dark Mode Init (flash prevention) -->
@@ -664,10 +777,103 @@
                 window.copyHandlerInitialized = true;
             }
 
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', setupLinkPreviews);
+            window.addEventListener('load', setupLinkPreviews);
+
+            async function setupLinkPreviews() {
+                if (window.linkPreviewsInitialized) return;
+                window.linkPreviewsInitialized = true;
+
                 setupReadingProgress();
                 setupCodeCopyButtons();
-            });
+
+                console.log('[LinkPreview] Başlatıldı');
+                
+                // Görsel bir belirteç ekleyelim (debug için)
+                const debugTag = document.createElement('div');
+                debugTag.style.cssText = 'position:fixed;bottom:10px;right:10px;font-size:10px;opacity:0.5;pointer-events:none;z-index:9999;';
+                debugTag.innerText = '[LinkPreview Aktif]';
+                document.body.appendChild(debugTag);
+
+                const proseElements = document.querySelectorAll('.prose');
+                proseElements.forEach(prose => {
+                    // Hem <a> etiketlerini hem de sadece URL içeren paragrafları kontrol et
+                    const paragraphs = prose.querySelectorAll('p');
+                    paragraphs.forEach(p => {
+                        const text = p.innerText.trim();
+                        const urlRegex = /^https?:\/\/[^\s]+$/;
+                        
+                        if (urlRegex.test(text)) {
+                            // Eğer paragraf sadece bir URL ise
+                            const url = text;
+                            renderLinkPreview(p, url, true);
+                        } else {
+                            // Paragraf içindeki tek <a> etiketini kontrol et
+                            const link = p.querySelector('a');
+                            if (link && p.children.length === 1 && p.innerText.trim() === link.innerText.trim()) {
+                                const url = link.getAttribute('href');
+                                if (url && url.startsWith('http')) {
+                                    renderLinkPreview(p, url, true);
+                                }
+                            }
+                        }
+                    });
+                });
+            }
+
+            async function renderLinkPreview(containerElement, url, isParagraph = false) {
+                // Skeleton loader
+                const skeleton = document.createElement('div');
+                skeleton.className = 'link-preview-card link-preview-skeleton';
+                skeleton.innerHTML = `
+                    <div class="link-preview-image" style="background-color: rgba(74, 111, 165, 0.05)"></div>
+                    <div class="link-preview-info">
+                        <div class="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                        <div class="h-3 bg-gray-200 dark:bg-gray-800 rounded w-full mb-1"></div>
+                        <div class="h-3 bg-gray-200 dark:bg-gray-800 rounded w-5/6"></div>
+                    </div>
+                `;
+                
+                const originalContent = containerElement.innerHTML;
+                containerElement.innerHTML = '';
+                containerElement.appendChild(skeleton);
+
+                try {
+                    const response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        const data = result.data;
+                        const domain = new URL(url).hostname.replace('www.', '');
+                        
+                        const card = document.createElement('a');
+                        card.href = url;
+                        card.target = '_blank';
+                        card.rel = 'noopener noreferrer';
+                        card.className = 'link-preview-card';
+                        
+                        card.innerHTML = `
+                            ${data.image ? `<div class="link-preview-image" style="background-image: url('${data.image.url}')"></div>` : '<div class="link-preview-image"></div>'}
+                            <div class="link-preview-info">
+                                <h4 class="link-preview-title">${data.title || domain}</h4>
+                                <p class="link-preview-description">${data.description || ''}</p>
+                                <div class="link-preview-url">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                    ${domain}
+                                </div>
+                            </div>
+                        `;
+                        
+                        containerElement.innerHTML = '';
+                        containerElement.appendChild(card);
+                    } else {
+                        containerElement.innerHTML = originalContent;
+                    }
+                } catch (error) {
+                    console.error('[LinkPreview] Fetch hatası:', error);
+                    containerElement.innerHTML = originalContent;
+                }
+            }
         })();
     </script>
 
