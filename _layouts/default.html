@@ -796,41 +796,53 @@
                 setupReadingProgress();
                 setupCodeCopyButtons();
 
-                console.log('[LinkPreview] Başlatıldı');
+                console.log('[LinkPreview] Gözlemleyici başlatıldı');
 
-                // Görsel bir belirteç ekleyelim (debug için)
-                const debugTag = document.createElement('div');
-                debugTag.style.cssText = 'position:fixed;bottom:10px;right:10px;font-size:10px;opacity:0.5;pointer-events:none;z-index:9999;';
-                debugTag.innerText = '[LinkPreview Aktif]';
-                document.body.appendChild(debugTag);
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const el = entry.target;
+                            const url = el.dataset.previewUrl;
+                            if (url) {
+                                renderLinkPreview(el, url);
+                            }
+                            observer.unobserve(el);
+                        }
+                    });
+                }, { rootMargin: '200px' });
 
                 const proseElements = document.querySelectorAll('.prose');
                 proseElements.forEach(prose => {
-                    // Hem <a> etiketlerini hem de sadece URL içeren paragrafları kontrol et
                     const paragraphs = prose.querySelectorAll('p');
                     paragraphs.forEach(p => {
                         const text = p.innerText.trim();
                         const urlRegex = /^https?:\/\/[^\s]+$/;
+                        let url = null;
 
                         if (urlRegex.test(text)) {
-                            // Eğer paragraf sadece bir URL ise
-                            const url = text;
-                            renderLinkPreview(p, url, true);
+                            url = text;
                         } else {
-                            // Paragraf içindeki tek <a> etiketini kontrol et
                             const link = p.querySelector('a');
                             if (link && p.children.length === 1 && p.innerText.trim() === link.innerText.trim()) {
-                                const url = link.getAttribute('href');
-                                if (url && url.startsWith('http')) {
-                                    renderLinkPreview(p, url, true);
+                                const href = link.getAttribute('href');
+                                if (href && href.startsWith('http')) {
+                                    url = href;
                                 }
                             }
+                        }
+
+                        if (url) {
+                            p.dataset.previewUrl = url;
+                            observer.observe(p);
                         }
                     });
                 });
             }
 
-            async function renderLinkPreview(containerElement, url, isParagraph = false) {
+            async function renderLinkPreview(containerElement, url) {
+                if (containerElement.dataset.previewed) return;
+                containerElement.dataset.previewed = 'true';
+
                 // Skeleton loader
                 const skeleton = document.createElement('div');
                 skeleton.className = 'link-preview-card link-preview-skeleton';
@@ -883,6 +895,7 @@
                     containerElement.innerHTML = originalContent;
                 }
             }
+
         })();
     </script>
 
