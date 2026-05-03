@@ -123,6 +123,53 @@
             display: block;
         }
 
+        .yt-lazy-placeholder {
+            position: relative;
+            cursor: pointer;
+            background-color: #000;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            aspect-ratio: 16 / 9;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .yt-lazy-placeholder:hover {
+            transform: scale(1.01);
+        }
+
+        .yt-lazy-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            margin: 0 !important;
+        }
+
+        .yt-lazy-play {
+            position: absolute;
+            width: 68px;
+            height: 48px;
+            z-index: 10;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+        }
+
+        .yt-lazy-placeholder:hover .yt-lazy-play {
+            transform: scale(1.1);
+            filter: drop-shadow(0 6px 16px rgba(0,0,0,0.6));
+        }
+
+        .yt-lazy-placeholder.short {
+            aspect-ratio: 9 / 16;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         .prose pre,
         .prose .highlight,
         .prose .highlighter-rouge {
@@ -804,7 +851,12 @@
                             const el = entry.target;
                             const url = el.dataset.previewUrl;
                             if (url) {
-                                renderLinkPreview(el, url);
+                                const ytId = getYoutubeId(url);
+                                if (ytId) {
+                                    renderYoutubeEmbed(el, ytId, url.includes('shorts/') || el.classList.contains('short') || el.dataset.isShort === 'true');
+                                } else {
+                                    renderLinkPreview(el, url);
+                                }
                             }
                             observer.unobserve(el);
                         }
@@ -813,6 +865,21 @@
 
                 const proseElements = document.querySelectorAll('.prose');
                 proseElements.forEach(prose => {
+                    // Handle YouTube iframes
+                    const iframes = prose.querySelectorAll('iframe[src*="youtube.com/embed/"], iframe[src*="youtube-nocookie.com/embed/"]');
+                    iframes.forEach(iframe => {
+                        const src = iframe.getAttribute('src');
+                        const ytId = getYoutubeId(src);
+                        if (ytId) {
+                            const wrapper = document.createElement('div');
+                            wrapper.dataset.previewUrl = src;
+                            wrapper.dataset.isShort = src.includes('shorts/') || iframe.classList.contains('short') ? 'true' : 'false';
+                            iframe.parentNode.replaceChild(wrapper, iframe);
+                            observer.observe(wrapper);
+                        }
+                    });
+
+                    // Handle URLs in paragraphs
                     const paragraphs = prose.querySelectorAll('p');
                     paragraphs.forEach(p => {
                         const text = p.innerText.trim();
@@ -837,6 +904,54 @@
                         }
                     });
                 });
+            }
+
+            function getYoutubeId(url) {
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[2].length === 11) ? match[2] : null;
+            }
+
+            async function renderYoutubeEmbed(containerElement, videoId, isShort = false) {
+                if (containerElement.dataset.previewed) return;
+                containerElement.dataset.previewed = 'true';
+
+                const placeholder = document.createElement('div');
+                placeholder.className = 'yt-lazy-placeholder' + (isShort ? ' short' : '');
+                
+                const thumbUrl = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+                
+                placeholder.innerHTML = `
+                    <img src="${thumbUrl}" loading="lazy" alt="YouTube video thumbnail" onerror="this.src='https://i.ytimg.com/vi/${videoId}/hqdefault.jpg'">
+                    <div class="yt-lazy-play">
+                        <svg viewBox="0 0 68 48" width="100%" height="100%"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,0.13,34,0,34,0S12.21,0.13,6.9,1.55 c-2.93,0.78-4.64,3.26-5.42,6.19C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="#f00"></path><path d="M 45,24 27,14 27,34" fill="#fff"></path></svg>
+                    </div>
+                `;
+
+                containerElement.innerHTML = '';
+                containerElement.appendChild(placeholder);
+
+                placeholder.onclick = () => {
+                    const iframe = document.createElement('iframe');
+                    let embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`;
+                    if (isShort) embedUrl += '&loop=1';
+                    
+                    iframe.src = embedUrl;
+                    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+                    iframe.allowFullscreen = true;
+                    iframe.frameBorder = "0";
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.position = 'absolute';
+                    iframe.style.top = '0';
+                    iframe.style.left = '0';
+                    iframe.style.borderRadius = '0.5rem';
+
+                    placeholder.innerHTML = '';
+                    placeholder.appendChild(iframe);
+                    placeholder.style.cursor = 'default';
+                    placeholder.onclick = null;
+                };
             }
 
             async function renderLinkPreview(containerElement, url) {
