@@ -406,6 +406,24 @@
                 opacity: .5;
             }
         }
+        .prose a.hashtag {
+            color: #4A6FA5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .prose a.hashtag:hover {
+            text-decoration: underline;
+            color: #3b5a84;
+        }
+
+        .dark .prose a.hashtag {
+            color: #8D99AE;
+        }
+
+        .dark .prose a.hashtag:hover {
+            color: #F5F0E8;
+        }
     </style>
 
     <!-- Dark Mode Init (flash prevention) -->
@@ -842,6 +860,7 @@
 
                 setupReadingProgress();
                 setupCodeCopyButtons();
+                setupHashtags();
 
                 console.log('[LinkPreview] Gözlemleyici başlatıldı');
 
@@ -1009,6 +1028,42 @@
                     console.error('[LinkPreview] Fetch hatası:', error);
                     containerElement.innerHTML = originalContent;
                 }
+            }
+
+            function setupHashtags() {
+                document.querySelectorAll('.prose').forEach(prose => {
+                    const walk = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT, null, false);
+                    let node;
+                    const textNodes = [];
+                    while(node = walk.nextNode()) {
+                        const parent = node.parentElement;
+                        if (parent.tagName !== 'A' && parent.tagName !== 'CODE' && parent.tagName !== 'PRE' && !parent.closest('pre') && !parent.closest('code')) {
+                            textNodes.push(node);
+                        }
+                    }
+
+                    textNodes.forEach(node => {
+                        const text = node.nodeValue;
+                        const hashtagRegex = /#([a-zA-Z0-9şğüçöİı]+)/g;
+                        if (hashtagRegex.test(text)) {
+                            const fragment = document.createDocumentFragment();
+                            let lastIndex = 0;
+                            let match;
+                            hashtagRegex.lastIndex = 0;
+                            while ((match = hashtagRegex.exec(text)) !== null) {
+                                fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.index)));
+                                const a = document.createElement('a');
+                                a.href = `/?tag=${match[1]}`;
+                                a.className = 'hashtag';
+                                a.textContent = match[0];
+                                fragment.appendChild(a);
+                                lastIndex = hashtagRegex.lastIndex;
+                            }
+                            fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+                            node.parentNode.replaceChild(fragment, node);
+                        }
+                    });
+                });
             }
 
         })();

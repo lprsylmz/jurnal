@@ -12,3 +12,5 @@ Version Control for SQLite Database
 Tyro Checkpoint is a simple Laravel package that provides Git-like checkpoint functionality for your SQLite database during local development. #dev #laravel
 
 https://hasinhayder.github.io/tyro-checkpoint/
+
+#laravel #sqlite

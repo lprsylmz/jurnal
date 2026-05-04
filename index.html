@@ -33,7 +33,7 @@ title: lprsylmz.tr
     {% assign entry_id = total_entries | minus: forloop.index | plus: 1 %}
     {% capture post_anchor %}#{{ entry_id }}{% endcapture %}
 
-    <article id="{{ entry_id }}"
+    <article id="{{ entry_id }}" data-tags="{{ post.tags | join: ',' }}"
         class="p-6 border border-brand-dark/10 dark:border-brand-light/10 rounded-xl shadow-2xl hover:bg-brand-dark/[0.02] dark:hover:bg-brand-light/[0.02] transition-colors">
         <div class="flex items-start space-x-3">
             <div class="flex-1 min-w-0">
@@ -139,5 +139,53 @@ title: lprsylmz.tr
             const diff = Math.max(0, nowSec - ts);
             node.textContent = formatRelativeTime(diff);
         });
+
+        // --- Tag Filtering Logic ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTag = urlParams.get('tag');
+
+        if (activeTag) {
+            const articles = document.querySelectorAll('article[data-tags]');
+            let visibleCount = 0;
+
+            articles.forEach(article => {
+                const tags = article.getAttribute('data-tags').split(',');
+                const content = article.innerText.toLowerCase();
+                const matches = tags.includes(activeTag) || content.includes('#' + activeTag.toLowerCase());
+
+                if (matches) {
+                    article.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    article.style.display = 'none';
+                }
+            });
+
+            // Show JS filter bar
+            const filterBar = document.createElement('div');
+            filterBar.className = "flex items-center justify-between p-4 bg-brand-accent/10 dark:bg-brand-muted/10 rounded-xl border border-brand-accent/20 dark:border-brand-muted/20 mb-6";
+            filterBar.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <span class="text-brand-dark/60 dark:text-brand-light/60 text-sm">Filtre:</span>
+                    <span class="bg-brand-accent text-white px-2 py-0.5 rounded text-sm font-bold">#${activeTag}</span>
+                </div>
+                <a href="${window.location.pathname}"
+                    class="text-xs text-brand-dark/50 dark:text-brand-light/50 hover:text-brand-primary transition-colors flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Temizle</span>
+                </a>
+            `;
+            const container = document.querySelector('.space-y-6');
+            container.insertBefore(filterBar, container.firstChild);
+
+            if (visibleCount === 0) {
+                const emptyMsg = document.createElement('p');
+                emptyMsg.className = "text-center py-10 text-brand-dark/50 dark:text-brand-light/50";
+                emptyMsg.textContent = "Bu etikete uygun not bulunamadı.";
+                container.appendChild(emptyMsg);
+            }
+        }
     })();
 </script>
