@@ -578,7 +578,7 @@
 
                 <!-- Controls -->
                 <div class="flex items-center gap-2">
-                    <button x-on:click="toggleSearch()" aria-label="Arama"
+                    <button id="search-toggle-btn" x-on:click="toggleSearch()" aria-label="Arama"
                         class="p-3 rounded-2xl bg-brand-light text-brand-dark dark:bg-brand-dark dark:text-brand-light hover:bg-brand-accent/20 dark:hover:bg-brand-muted/20 transition-all duration-300 shadow-sm focus:outline-none flex items-center justify-center">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -628,10 +628,10 @@
               (note.content && note.content.toLowerCase().includes(q))
             ).slice(0, 5);
           }
-        }" x-init="initSearch()">
+        }" x-init="$watch('searchOpen', val => { if (!val) { searchQuery = ''; searchResults = []; } }); initSearch()" @click.outside="if (!$event.target.closest('#search-toggle-btn')) searchOpen = false">
                 <input id="search-input" type="text" x-model="searchQuery" x-on:input.debounce.300ms="search()"
                     placeholder="Notlarda ara..."
-                    class="w-full px-5 py-3 rounded-2xl bg-white/50 dark:bg-white/5 border border-brand-dark/10 dark:border-brand-light/10 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all dark:placeholder:text-gray-500 font-sans text-sm">
+                    class="w-full px-5 py-3 rounded-2xl bg-brand-light dark:bg-brand-dark border border-brand-dark/10 dark:border-brand-light/10 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all dark:placeholder:text-gray-500 font-sans text-sm">
 
                 <template x-if="searchResults.length > 0">
                     <ul
