@@ -34,6 +34,16 @@ defaults:
     values:
       layout: "default"
       is_published: true
+  - scope:
+      path: ""
+      type: "journal_entries"
+    values:
+      sitemap: false
+  - scope:
+      path: ""
+      type: "s"
+    values:
+      sitemap: false
 
 feed:
   collections:
@@ -42,7 +52,7 @@ feed:
 
 collections:
   journal_entries:
-    output: true
+    output: false
   s:
     output: true
     permalink: /s/:title/
