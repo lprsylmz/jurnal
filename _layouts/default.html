@@ -51,9 +51,9 @@
                     colors: {
                         'brand-light': '#F5F0E8',
                         'brand-dark': '#1C1F26',
-                        'brand-accent': '#4A6FA5',
-                        'brand-muted': '#8D99AE',
-                        'brand-primary': '#4A6FA5',
+                        'brand-accent': 'rgb(51 65 85)',
+                        'brand-muted': 'rgb(148 163 184)',
+                        'brand-primary': 'rgb(51 65 85)',
                     },
                     fontFamily: {
                         sans: ['"Lora"', 'Georgia', 'serif'],
@@ -155,12 +155,12 @@
             height: 48px;
             z-index: 10;
             transition: all 0.3s ease;
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
         }
 
         .yt-lazy-placeholder:hover .yt-lazy-play {
             transform: scale(1.1);
-            filter: drop-shadow(0 6px 16px rgba(0,0,0,0.6));
+            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.6));
         }
 
         .yt-lazy-placeholder.short {
@@ -406,6 +406,7 @@
                 opacity: .5;
             }
         }
+
         .prose a.hashtag {
             color: #4A6FA5;
             text-decoration: none;
@@ -514,7 +515,7 @@
 
     <!-- Reading Progress Bar -->
     <div id="reading-progress"
-        class="fixed top-0 left-0 h-[3px] bg-brand-accent dark:bg-brand-muted z-50 transition-all duration-100 ease-out"
+        class="fixed top-0 left-0 h-1 bg-brand-accent dark:bg-brand-muted z-50 transition-all duration-100 ease-out"
         style="width:0%;" role="progressbar" aria-label="Okuma ilerlemesi" aria-valuenow="0" aria-valuemin="0"
         aria-valuemax="100">
     </div>
@@ -628,10 +629,11 @@
               (note.content && note.content.toLowerCase().includes(q))
             ).slice(0, 5);
           }
-        }" x-init="$watch('searchOpen', val => { if (!val) { searchQuery = ''; searchResults = []; } }); initSearch()" @click.outside="if (!$event.target.closest('#search-toggle-btn')) searchOpen = false">
+        }" x-init="$watch('searchOpen', val => { if (!val) { searchQuery = ''; searchResults = []; } }); initSearch()"
+                @click.outside="if (!$event.target.closest('#search-toggle-btn')) searchOpen = false">
                 <input id="search-input" type="text" x-model="searchQuery" x-on:input.debounce.300ms="search()"
                     placeholder="Notlarda ara..."
-                    class="w-full px-5 py-3 rounded-2xl bg-brand-light dark:bg-brand-dark border border-brand-dark/10 dark:border-brand-light/10 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all dark:placeholder:text-gray-500 font-sans text-sm">
+                    class="w-full px-5 py-3 rounded-2xl bg-white/50 dark:bg-white/5 border border-brand-dark/10 dark:border-brand-light/10 focus:outline-none focus:ring-2 focus:ring-brand-accent transition-all dark:placeholder:text-gray-500 font-sans text-sm">
 
                 <template x-if="searchResults.length > 0">
                     <ul
@@ -937,9 +939,9 @@
 
                 const placeholder = document.createElement('div');
                 placeholder.className = 'yt-lazy-placeholder' + (isShort ? ' short' : '');
-                
+
                 const thumbUrl = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
-                
+
                 placeholder.innerHTML = `
                     <img src="${thumbUrl}" loading="lazy" alt="YouTube video thumbnail" onerror="this.src='https://i.ytimg.com/vi/${videoId}/hqdefault.jpg'">
                     <div class="yt-lazy-play">
@@ -954,7 +956,7 @@
                     const iframe = document.createElement('iframe');
                     let embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`;
                     if (isShort) embedUrl += '&loop=1';
-                    
+
                     iframe.src = embedUrl;
                     iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
                     iframe.allowFullscreen = true;
@@ -1035,7 +1037,7 @@
                     const walk = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT, null, false);
                     let node;
                     const textNodes = [];
-                    while(node = walk.nextNode()) {
+                    while (node = walk.nextNode()) {
                         const parent = node.parentElement;
                         if (parent.tagName !== 'A' && parent.tagName !== 'CODE' && parent.tagName !== 'PRE' && !parent.closest('pre') && !parent.closest('code')) {
                             textNodes.push(node);
