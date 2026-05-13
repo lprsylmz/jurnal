@@ -14,6 +14,7 @@ permalink: /#:title
 plugins:
   - jekyll-feed
   - jekyll-sitemap
+  - jekyll-redirect-from
 
 markdown: kramdown
 kramdown:
@@ -41,4 +42,6 @@ feed:
 
 collections:
   journal_entries:
+    output: true
+  s:
     output: true
