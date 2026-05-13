@@ -9,7 +9,7 @@ yandex_metrica: "108975845"
 cloudflare_token: "e7ffd2bb59a1435baaaacac5f10910df"
 yandex_verification: "41cec89ecaaf7150"
 
-permalink: /#:title
+permalink: /:title/
 
 plugins:
   - jekyll-feed
@@ -45,3 +45,4 @@ collections:
     output: true
   s:
     output: true
+    permalink: /s/:title/
