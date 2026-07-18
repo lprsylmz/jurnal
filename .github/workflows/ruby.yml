@@ -2,7 +2,7 @@ name: Deploy Jekyll site to Pages
 
 on:
   push:
-    branches: ["main"] # Burayı sitenizin ana dalına göre (main veya master) düzenleyin
+    branches: ["main"] # Eğer ana dalınızın adı master ise burayı "master" yapın
 
 permissions:
   contents: read
@@ -19,23 +19,29 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3' # Güncel ve kararlı Ruby sürümü
+          bundler-cache: true # Gemfile bağımlılıklarını önbelleğe alarak hızlandırır
+          cache-version: 1
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-        
+
       - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./
-          destination: ./_site
-          
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps: deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
     steps:
